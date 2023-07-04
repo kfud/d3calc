@@ -7,36 +7,44 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseMemoryRepository: MemoryRepository {
+class DatabaseMemoryRepository : MemoryRepository {
 
     // -- For demo purposes, this should come from a configuration file.
-    private val connection = Database.connect("jdbc:h2:mem:test", driver = "org.h2.Driver")
+    private val connection = Database.connect("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
 
     init {
-        SchemaUtils.create (Memories)
+        transaction {
+            SchemaUtils.create(Memories)
+        }
     }
 
     override fun store(number: Double) {
-        Memory.new {
-            value = number
+        transaction {
+            Memory.new {
+                value = number
+            }
         }
     }
 
     override fun recall(): Double {
-        return Memory.all().lastOrNull()?.let {
-            val value = it.value
-            it.delete()
-            value
-        } ?: 0.0
+        return transaction {
+            Memory.all().lastOrNull()?.let {
+                val value = it.value
+                it.delete()
+                value
+            } ?: 0.0
+        }
     }
 }
 
-object Memories: IntIdTable() {
-    val value = double("value" )
+object Memories : IntIdTable() {
+    val value = double("value")
 }
 
 class Memory(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<Memory>(Memories)
+
     var value by Memories.value
 }
