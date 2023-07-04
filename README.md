@@ -1,11 +1,11 @@
 # d3calc
 Domain Driven Design Calculator Example
 
-# How to Run it
+# How to RUN it
 
 `mvn exec:java -Dexec.mainClass=com.fudcom.d3calc.ApplicationKt`
 
-# How to Use It (via REST)
+# How to USE It (via REST)
 
 Make requests on: `localhost:8080`
 
@@ -17,3 +17,11 @@ Make requests on: `localhost:8080`
 - All clear: `POST /ac`
 - Memory Store: `POST /ms`
 - Memory Recall: `POST /mr`
+
+# How to TEST
+
+`mvn test`
+
+This is still work in progress, but the idea is to:
+1. Unit-test the business rules core package.
+2. Then test the adapters (REST) with mocking.
